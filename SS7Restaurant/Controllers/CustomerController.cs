@@ -4,15 +4,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SS7Restaurant.Data;
+using SS7Restaurant.Models;
 
 namespace SS7Restaurant.Controllers
 {
     public class CustomerController : Controller
     {
-        // GET: Customer
-        public ActionResult Index()
+        private readonly AppDbContext _context;
+        public CustomerController(AppDbContext context)
         {
-            return View();
+            _context = context;
+        }
+        // GET: Customer
+        public async Task<ActionResult> Index()
+        {
+            return View(await _context.Customer.ToListAsync());
         }
 
         // GET: Customer/Details/5
@@ -30,18 +38,16 @@ namespace SS7Restaurant.Controllers
         // POST: Customer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(Customer customer)
         {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(Index));
+                customer.CustomerId = Guid.NewGuid();
+                _context.Customer.Add(customer);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+            return View(customer);
         }
 
         // GET: Customer/Edit/5

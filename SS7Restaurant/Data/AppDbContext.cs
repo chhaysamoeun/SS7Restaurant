@@ -11,6 +11,8 @@ namespace SS7Restaurant.Data
 		{
 		}
 		public DbSet<Customer> Customer { get; set; }
+		public DbSet<Tables> Tables { get; set; }
+		public DbSet<Category> Category { get; set; }
 	}
 }
 
