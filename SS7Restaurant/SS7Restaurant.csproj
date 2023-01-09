@@ -34,5 +34,9 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Views\Customer\" />
+    <Folder Include="wwwroot\Uploads\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\Uploads\" />
   </ItemGroup>
 </Project>
