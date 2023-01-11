@@ -1,0 +1,110 @@
+@model SS7Restaurant.Models.Sale
+
+@{
+    ViewData["Title"] = "Create";
+}
+<hr/>
+<div class="row">
+    <div class="col-3">
+        @foreach (var category in ViewBag.Category as List<Category>)
+        {
+            <a href="#" onclick='GetProduct("@category.CategoryId")'
+               class="btn btn-primary">@category.CategoryName</a>
+        }
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="IssueDate" class="control-label"></label>
+            <input asp-for="IssueDate" class="form-control" />
+            <span asp-validation-for="IssueDate" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="TableId" class="control-label"></label>
+            <select asp-for="TableId" class="form-control" asp-items="ViewBag.TableId"></select>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="CustomerId" class="control-label"></label>
+            <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-6">
+        <div id="ProductList">
+
+        </div>
+    </div>
+    <div class="col-6">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="Total" class="control-label"></label>
+            <input asp-for="Total" class="form-control" />
+            <span asp-validation-for="Total" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="Discount" class="control-label"></label>
+            <input asp-for="Discount" class="form-control" />
+            <span asp-validation-for="Discount" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <label asp-for="GrandTotal" class="control-label"></label>
+            <input asp-for="GrandTotal" class="form-control" />
+            <span asp-validation-for="GrandTotal" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+           
+        });
+        function GetProduct(id) {
+            $.ajax({
+                method: "GET",
+                url: "/Sale/GetProductByCategory/?Id=" + id,
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data);
+                }, error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+    
+}
