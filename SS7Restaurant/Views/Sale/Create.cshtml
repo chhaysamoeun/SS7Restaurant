@@ -40,7 +40,7 @@
         </div>
     </div>
     <div class="col-6">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="cartList">
             <thead>
                 <tr>
                     <th>Product</th>
@@ -50,6 +50,7 @@
                     <th>Action</th>
                 </tr>
             </thead>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -58,21 +59,21 @@
     <div class="col-3">
         <div class="form-group">
             <label asp-for="Total" class="control-label"></label>
-            <input asp-for="Total" class="form-control" />
+            <input asp-for="Total" readonly class="form-control" />
             <span asp-validation-for="Total" class="text-danger"></span>
         </div>
     </div>
     <div class="col-3">
         <div class="form-group">
             <label asp-for="Discount" class="control-label"></label>
-            <input asp-for="Discount" class="form-control" />
+            <input asp-for="Discount" class="form-control"  value="0"/>
             <span asp-validation-for="Discount" class="text-danger"></span>
         </div>
     </div>
     <div class="col-3">
         <div class="form-group">
             <label asp-for="GrandTotal" class="control-label"></label>
-            <input asp-for="GrandTotal" class="form-control" />
+            <input asp-for="GrandTotal" readonly class="form-control" />
             <span asp-validation-for="GrandTotal" class="text-danger"></span>
         </div>
     </div>
@@ -91,7 +92,9 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         $(document).ready(function () {
-           
+            $("#Discount").blur(function () {
+                CalGrandTotal();
+            });
         });
         function GetProduct(id) {
             $.ajax({
@@ -99,11 +102,50 @@
                 url: "/Sale/GetProductByCategory/?Id=" + id,
                 contentType: "application/json",
                 success: function (data) {
-                    console.log(data);
+                    $.each(data, function (i, v) {
+                        var product = "<div class='card'><img class='card-img-top' onClick=AddToCart('" + v.productId + "','" + v.productName + "',"+ v.price +");";
+                        product += " style='height:100px;width:auto' src='/Uploads/" + v.image + "'/>";
+                        product += "<h5>" + v.productName + "</h5>";
+                        product += "<h4>" + v.price + "</h4></div>";
+                        $("#ProductList").append(product);
+                    });
+
                 }, error: function (error) {
                     console.log(error);
                 }
             });
+        }
+        function AddToCart(productId, productName, price) {
+            var b = false;
+            $("#cartList > tbody > tr").each(function () {
+                var name = $(this).closest("tr").find("td:eq(0)").text();
+                if (name == productName) {
+                    var price = $(this).closest("tr").find("td:eq(1)").text();
+                    var qty = $(this).closest("tr").find("td:eq(2)").text();
+                    $(this).closest("tr").find("td:eq(2)").text(Number(qty) + 1);
+                    $(this).closest("tr").find("td:eq(3)").text(Number(qty) + 1 * Number(price));
+                    b = true;
+                }
+            });
+            if (b == false) {
+                var row = "<tr><td><input hidden name='productId[]' value='" + productId + "'/>";
+                row += productName + "</td><td>";
+                row += price + "</td><td>" + 1 + "</td><td>";
+                row += price + "</td><td></td></tr>";
+                $("#cartList").append(row);
+            }
+            CalGrandTotal();
+        }
+        function CalGrandTotal() {
+            var Total = 0;
+            $("#cartList > tbody > tr").each(function () {
+                var amount = $(this).closest("tr").find("td:eq(3)").text();
+                Total += Number(amount);
+            });
+            $("#Total").val(Total);
+            var discount = $("#Discount").val();
+            discount = Number(Total) * Number(discount) / 100;
+            $("#GrandTotal").val(Number(Total) - Number(discount));
         }
     </script>
     
